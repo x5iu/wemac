@@ -252,6 +252,7 @@ tell application "System Events"
 						set i to 8 -- 用于跳过非聊天信息类的 item，例如消息撤回、群成员邀请等，这些信息无法被删除，只能跳过
 						set n to 0
 						repeat until i < 0
+							key code 53 -- 在每次处理消息前按一下 ESC，用于关闭一些意想不到的菜单和弹窗（通常是误触或者其他进程产生的），能解决很多问题
 							set i to i - 1
 							set l to count rows
 							if (l - n) ≤ 0 then
