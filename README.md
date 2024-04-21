@@ -1,6 +1,6 @@
 # Mac 版微信 RPA 群聊机器人
 
-这是一个利用 AppleScript 和 Mac 版微信客户端制作的简易版微信机器人。这个机器人起源于，我想做一个 ChatBot，帮我记录消费、饮食、运动等数据，以及帮我总结微信公众号文章内容。目前利用绿色微信实现 ChatBot 的方案，主流的就是 wechaty，但是 wechaty 使用的 puppet 中，免费的网页版或 UOS 版本不够稳定（意思是经常莫名奇妙被踢下线），稳定且功能丰富的 ipadloacl 等方案又需要花费额外的金币购买 token。于是我经过一些小小的尝试，实现了这个速度慢、功能少但足够稳定的微信机器人（*选择 Mac 版微信客户端是因为我手上只有 Mac 设备*）。
+这是一个利用 AppleScript 和 Mac 版微信客户端制作的简易版微信机器人。这个机器人起源于，我想做一个 ChatBot，帮我记录消费、饮食、运动等数据，以及帮我总结微信公众号文章内容。目前利用个人微信实现 ChatBot 的方案，主流的是 wechaty，但是 wechaty 使用的 puppet 中，免费的网页版或 UOS 版本不够稳定（意思是经常莫名奇妙被踢下线），稳定且功能丰富的 ipadloacl 等方案又需要花费额外的金币购买 token。于是我经过一些小小的尝试，实现了这个速度慢、功能少但足够稳定的微信机器人（*选择 Mac 版微信客户端是因为我手上只有 Mac 设备*）。
 
 ## 如何跑起来
 
@@ -29,8 +29,8 @@ pip3 install PyUserInput
 如果想自定义回复内容，比如接入大语言模型，在 `wemac.applescript` 的 270 行，“消息处理逻辑”注释处，你可以添加自己的回复逻辑，由于 AppleScript 本身能力有限，你可以利用 shell 外接其他语言，例如 Python，你可以用以下方式调用一个 Python 脚本来自定义回复内容：
 
 ```
-set replyMessage to do shell script "python3 your_script.py"
-````
+set replyMessage to do shell script "python3 your_script.py " & (my escaped(question))
+```
 
 被执行的 shell 的标准输出（stdout）将会赋值给 `replyMessage`，然后作为回复由机器人发出去。
 
@@ -40,7 +40,7 @@ set replyMessage to do shell script "python3 your_script.py"
 
 ## 局限
 
-- 无法获取用户唯一 ID，openai 和 unionid 都不可以，只有昵称或备注；
+- 无法获取用户唯一 ID，openid 和 unionid 都不可以，只有昵称或备注；
 - 无法获取消息的唯一 ID，只能处理一条删一条；
 - 处理速度慢，如果群聊的速度大于 AppleScript 的运行速度，那就会出现消息永远无法被处理的情况；
 - 必须用一台 Mac 来 Host，当然也可以通过开虚拟机的方式让一台 Mac 运行多个机器人；
