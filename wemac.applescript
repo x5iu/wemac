@@ -98,11 +98,15 @@ on deleteMessage(messageElement)
 		set messagePosition to position of messageElement
 		my rightClick(messagePosition)
 		if exists menu 1 of messageElement then
-			set menuItemPosition to position of last menu item of menu 1 of messageElement
-			my leftClick(menuItemPosition)
-			delay 0.5
-			key code 36
-			return true
+			repeat with menuItem in menu items of menu 1 of messageElement
+				if (name of menuItem) contains "删除" then
+					my leftClick(position of menuItem)
+					delay 0.5
+					key code 36
+					return true
+				end if
+			end repeat
+			return false
 		else
 			return false
 		end if
