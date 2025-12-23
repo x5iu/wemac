@@ -29,7 +29,7 @@ pip3 install PyUserInput
 如果想自定义回复内容，比如接入大语言模型，在 `wemac.applescript` 的 320 行，“消息处理逻辑”注释处，你可以添加自己的回复逻辑，由于 AppleScript 本身能力有限，你可以利用 shell 外接其他语言，例如 Python，你可以用以下方式调用 (Kimi CLI)[https://github.com/MoonshotAI/kimi-cli] 来自定义回复内容：
 
 ```
-set replyMessage to do shell script "kimi --print -c " & (my escaped(question))
+set replyMessage to do shell script "kimi --print -c " & (my escaped(question)) & ' --output-format stream-json | tail -n1 | jq -r '.content[-1].text''
 ```
 
 被执行的 shell 的标准输出（stdout）将会赋值给 `replyMessage`，然后作为回复由机器人发出去。
