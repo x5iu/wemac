@@ -46,7 +46,6 @@ end scrollUp
 
 on scrollToTop(messageTable, scrollAreaRef)
 	tell application "System Events"
-		-- 获取 scroll area 的位置（顶部边界）
 		set scrollAreaPosition to position of scrollAreaRef
 		set scrollAreaTop to item 2 of scrollAreaPosition
 		set scrollAreaCenter to position of scrollAreaRef
