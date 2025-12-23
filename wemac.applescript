@@ -37,6 +37,42 @@ on rightClickMy(p)
 	do shell script pythonBin & space & workingDir & "mouseclick.py" & space & (x as text) & space & (y as text) & space & "2"
 end rightClickMy
 
+
+on scrollUp(p)
+	set x to the first item of p
+	set y to the last item of p
+	do shell script pythonBin & space & wxrobotDir & "mouseclick.py" & space & (x as text) & space & (y as text) & space & "3" & space & "10"
+end scrollUp
+
+on scrollToTop(messageTable, scrollAreaRef)
+	tell application "System Events"
+		-- 获取 scroll area 的位置（顶部边界）
+		set scrollAreaPosition to position of scrollAreaRef
+		set scrollAreaTop to item 2 of scrollAreaPosition
+		set scrollAreaCenter to position of scrollAreaRef
+		
+		repeat
+			set currentRows to rows of messageTable
+			if (count of currentRows) = 0 then
+				return
+			end if
+			set firstMessage to item 1 of currentRows
+			set firstMessageElement to UI element 1 of UI element 1 of firstMessage
+			
+			set firstMessagePosition to position of firstMessageElement
+			set firstMessageY to item 2 of firstMessagePosition
+			
+			if firstMessageY ≥ scrollAreaTop then
+				my scrollUp(scrollAreaCenter)
+				return
+			end if
+			
+			my scrollUp(scrollAreaCenter)
+			delay 0.5
+		end repeat
+	end tell
+end scrollToTop
+
 on isMaxWechatWindow()
 	tell application "Finder"
 		set windowBounds to bounds of window of desktop
@@ -252,18 +288,25 @@ tell application "System Events"
 			end if
 			if username starts with chatWindowName then
 				tell scroll area 1 of splitter group 1 of splitter group 1
+					set scrollAreaRef to it
 					tell table 1
-						set i to 8 -- 用于跳过非聊天信息类的 item，例如消息撤回、群成员邀请等，这些信息无法被删除，只能跳过
-						set n to 0
-						repeat until i < 0
-							key code 53 -- 在每次处理消息前按一下 ESC，用于关闭一些意想不到的菜单和弹窗（通常是误触或者其他进程产生的），能解决很多问题
-							set i to i - 1
-							set l to count rows
-							if (l - n) ≤ 0 then
-								delay 2
-								return
-							end if
-							set message to item (l - n) of rows
+						set x to count rows
+						set lastMessage to item x of rows
+						set lastMessageElement to UI element 1 of UI element 1 of lastMessage
+						tell application "WeChat"
+							set wechatBounds to bounds of first window
+							set centerX to ((item 1 of wechatBounds) + (item 3 of wechatBounds)) / 2
+							set centerY to ((item 2 of wechatBounds) + (item 4 of wechatBounds)) / 2
+							my rightClick({centerX, centerY})
+						end tell
+						delay 1
+						key code 53
+						delay 0.5
+						my scrollToTop(it, scrollAreaRef)
+						set i to 0
+						repeat until i > x
+							set i to i + 1
+							set message to item i of rows
 							set messageElement to UI element 1 of UI element 1 of message
 							set messageContent to name of messageElement
 							if messageContent does not start with "我" then
@@ -278,15 +321,11 @@ tell application "System Events"
 										my reply(replyMessage)
 									end if
 									return
-								else
-									set n to n + 1
 								end if
 							else
 								if my deleteMessageMy(messageElement) then
 									delay 0.5
 									return
-								else
-									set n to n + 1
 								end if
 							end if
 							delay 0.7
